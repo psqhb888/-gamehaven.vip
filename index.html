@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Play thousands of free online games in your browser! Browse through various categories including action, adventure, puzzle, and more.">
+    <meta property="og:title" content="GameHub - Play Free Online Games">
+    <meta property="og:description" content="Play thousands of free online games in your browser!">
+    <meta property="og:image" content="https://via.placeholder.com/1200x630">
+    <meta property="og:url" content="https://gamehub.com">
+    <title>GameHub - Play Free Online Games</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100">
+    <header class="bg-white shadow">
+        <nav class="container mx-auto px-4 py-4">
+            <div class="flex justify-between items-center">
+                <a href="index.html" class="text-2xl font-bold text-gray-800">GameHub</a>
+                <div class="flex items-center space-x-6">
+                    <div class="flex space-x-4">
+                        <a href="index.html" class="text-gray-600 hover:text-gray-900">Home</a>
+                        <a href="categories.html" class="text-gray-600 hover:text-gray-900">Categories</a>
+                        <a href="search.html" class="text-gray-600 hover:text-gray-900">Search</a>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <button onclick="changeLanguage('en')" class="px-2 py-1 rounded hover:bg-gray-100">EN</button>
+                        <span class="text-gray-300">|</span>
+                        <button onclick="changeLanguage('zh')" class="px-2 py-1 rounded hover:bg-gray-100">中文</button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mx-auto px-4 py-8">
+        <section class="mb-8">
+            <h2 class="text-3xl font-bold text-gray-800 mb-4" data-en="Popular Games" data-zh="热门游戏">Popular Games</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Game Card 1 -->
+                <div class="bg-white rounded-lg shadow overflow-hidden">
+                    <img src="https://via.placeholder.com/400x200" alt="Game 1" class="w-full h-48 object-cover">
+                    <div class="p-4">
+                        <h3 class="text-xl font-semibold text-gray-800">Game Title 1</h3>
+                        <p class="text-gray-600 mt-2" data-en="Action, Adventure" data-zh="动作, 冒险">Action, Adventure</p>
+                        <button class="mt-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700" data-en="Play Now" data-zh="立即开玩">Play Now</button>
+                    </div>
+                </div>
+
+                <!-- Game Card 2 -->
+                <div class="bg-white rounded-lg shadow overflow-hidden">
+                    <img src="https://via.placeholder.com/400x200" alt="Game 2" class="w-full h-48 object-cover">
+                    <div class="p-4">
+                        <h3 class="text-xl font-semibold text-gray-800">Game Title 2</h3>
+                        <p class="text-gray-600 mt-2" data-en="Strategy, Puzzle" data-zh="策略, 解谜">Strategy, Puzzle</p>
+                        <button class="mt-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700" data-en="Play Now" data-zh="立即开玩">Play Now</button>
+                    </div>
+                </div>
+
+                <!-- Game Card 3 -->
+                <div class="bg-white rounded-lg shadow overflow-hidden">
+                    <img src="https://via.placeholder.com/400x200" alt="Game 3" class="w-full h-48 object-cover">
+                    <div class="p-4">
+                        <h3 class="text-xl font-semibold text-gray-800">Game Title 3</h3>
+                        <p class="text-gray-600 mt-2" data-en="Sports, Racing" data-zh="体育, 竞速">Sports, Racing</p>
+                        <button class="mt-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700" data-en="Play Now" data-zh="立即开玩">Play Now</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-8">
+            <h2 class="text-3xl font-bold text-gray-800 mb-4" data-en="Categories" data-zh="游戏分类">Categories</h2>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <a href="category.html" class="bg-white p-4 rounded-lg shadow text-center hover:shadow-lg transition-shadow">
+                    <h3 class="font-semibold text-gray-800" data-en="Action" data-zh="动作">Action</h3>
+                    <p class="text-sm text-gray-600" data-en="100+ games" data-zh="100+ 游戏">100+ games</p>
+                </a>
+                <a href="category.html" class="bg-white p-4 rounded-lg shadow text-center hover:shadow-lg transition-shadow">
+                    <h3 class="font-semibold text-gray-800" data-en="Adventure" data-zh="冒险">Adventure</h3>
+                    <p class="text-sm text-gray-600" data-en="80+ games" data-zh="80+ 游戏">80+ games</p>
+                </a>
+                <a href="category.html" class="bg-white p-4 rounded-lg shadow text-center hover:shadow-lg transition-shadow">
+                    <h3 class="font-semibold text-gray-800" data-en="Puzzle" data-zh="解谜">Puzzle</h3>
+                    <p class="text-sm text-gray-600" data-en="120+ games" data-zh="120+ 游戏">120+ games</p>
+                </a>
+                <a href="category.html" class="bg-white p-4 rounded-lg shadow text-center hover:shadow-lg transition-shadow">
+                    <h3 class="font-semibold text-gray-800" data-en="Sports" data-zh="体育">Sports</h3>
+                    <p class="text-sm text-gray-600" data-en="90+ games" data-zh="90+ 游戏">90+ games</p>
+                </a>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-gray-800 text-white mt-8">
+        <div class="container mx-auto px-4 py-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div>
+                    <h3 class="text-xl font-bold mb-4" data-en="About GameHub" data-zh="关于 GameHub">About GameHub</h3>
+                    <p class="text-gray-400" data-en="Play thousands of free online games in your browser!" data-zh="在浏览器中畅玩数千款免费在线游戏！">Play thousands of free online games in your browser!</p>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold mb-4" data-en="Quick Links" data-zh="快速链接">Quick Links</h3>
+                    <ul class="space-y-2">
+                        <li><a href="index.html" class="text-gray-400 hover:text-white" data-en="Home" data-zh="首页">Home</a></li>
+                        <li><a href="categories.html" class="text-gray-400 hover:text-white" data-en="Categories" data-zh="分类">Categories</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white" data-en="Popular Games" data-zh="热门游戏">Popular Games</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold mb-4" data-en="Contact" data-zh="联系我们">Contact</h3>
+                    <p class="text-gray-400">Email: support@gamehub.com</p>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
+                <p>&copy; 2024 GameHub. <span data-en="All rights reserved." data-zh="保留所有权利">All rights reserved.</span></p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        function changeLanguage(lang) {
+            document.documentElement.lang = lang;
+            const elements = document.querySelectorAll('[data-en]');
+            elements.forEach(element => {
+                element.textContent = element.getAttribute(`data-${lang}`);
+            });
+            localStorage.setItem('language', lang);
+        }
+
+        // 初始化语言
+        const savedLang = localStorage.getItem('language') || 'en';
+        changeLanguage(savedLang);
+    </script>
+</body>
+</html> 
