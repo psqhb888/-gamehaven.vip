@@ -803,85 +803,61 @@
     <script>
         // 当前选中的分类
         let currentCategory = 'all';
+        let lastUpdate = 0; // 添加最后更新时间戳
 
         // 从localStorage加载游戏数据
         function loadGames() {
             try {
-                // 尝试从localStorage获取数据
-                let games = JSON.parse(localStorage.getItem('games'));
-                
-                // 如果localStorage中没有数据，使用默认数据
-                if (!games || games.length === 0) {
-                    games = [
-                        ...gamesData.popular.map(game => ({
-                            id: Date.now() + Math.random(),
-                            image: game.image,
-                            title: game.title,
-                            keywords: game.category,
-                            url: 'https://snooker.pics/',
-                            categories: {
-                                all: true,
-                                hot: true,
-                                new: false
-                            }
-                        })),
-                        ...gamesData.new.map(game => ({
-                            id: Date.now() + Math.random(),
-                            image: game.image,
-                            title: game.title,
-                            keywords: game.category,
-                            url: 'https://snooker.pics/',
-                            categories: {
-                                all: true,
-                                hot: false,
-                                new: true
-                            }
-                        }))
-                    ];
-                    // 保存到localStorage中
-                    localStorage.setItem('games', JSON.stringify(games));
-                }
+                // 获取数据和更新时间戳
+                const gamesData = localStorage.getItem('games');
+                const currentUpdate = localStorage.getItem('lastUpdate') || 0;
 
-                const gameContainer = document.querySelector('.game-grid');
-                
-                // 清空现有内容
-                gameContainer.innerHTML = '';
-
-                // 根据当前选中的分类过滤游戏
-                const filteredGames = games.filter(game => {
-                    if (currentCategory === 'all') {
-                        return game.categories.all;
-                    } else if (currentCategory === 'hot') {
-                        return game.categories.hot;
-                    } else if (currentCategory === 'new') {
-                        return game.categories.new;
+                // 如果数据已更新，则重新加载
+                if (currentUpdate > lastUpdate) {
+                    lastUpdate = currentUpdate;
+                    let games = JSON.parse(gamesData);
+                    
+                    if (!games || games.length === 0) {
+                        initializeDefaultGames();
+                        games = JSON.parse(localStorage.getItem('games'));
                     }
-                    return false;
-                });
 
-                // 确保游戏数据已加载
-                console.log('Filtered games:', filteredGames);
+                    const gameContainer = document.querySelector('.game-grid');
+                    gameContainer.innerHTML = '';
 
-                // 显示过滤后的游戏
-                if (filteredGames.length > 0) {
-                    filteredGames.forEach(game => {
-                        const gameCard = document.createElement('div');
-                        gameCard.className = 'game-card';
-                        gameCard.innerHTML = `
-                            <a href="${game.url}" target="_blank">
-                                <div class="game-image-container">
-                                    <img src="${game.image}" alt="${game.title}" class="game-image" loading="lazy">
-                                </div>
-                                <div class="game-info">
-                                    <h3 class="game-title">${game.title}</h3>
-                                    <p class="game-category">${game.keywords}</p>
-                                </div>
-                            </a>
-                        `;
-                        gameContainer.appendChild(gameCard);
+                    // 根据当前选中的分类过滤游戏
+                    const filteredGames = games.filter(game => {
+                        if (currentCategory === 'all') {
+                            return game.categories.all;
+                        } else if (currentCategory === 'hot') {
+                            return game.categories.hot;
+                        } else if (currentCategory === 'new') {
+                            return game.categories.new;
+                        }
+                        return false;
                     });
-                } else {
-                    gameContainer.innerHTML = '<div class="no-games">暂无游戏</div>';
+
+                    // 显示过滤后的游戏
+                    if (filteredGames.length > 0) {
+                        filteredGames.forEach(game => {
+                            const gameCard = document.createElement('div');
+                            gameCard.className = 'game-card';
+                            gameCard.innerHTML = `
+                                <a href="${game.url}" target="_blank">
+                                    <div class="game-image-container">
+                                        <img src="${game.image}" alt="${game.title}" class="game-image" loading="lazy">
+                                    </div>
+                                    <div class="game-info">
+                                        <h3 class="game-title">${game.title}</h3>
+                                        <p class="game-category">${game.keywords}</p>
+                                    </div>
+                                </a>
+                            `;
+                            gameContainer.appendChild(gameCard);
+                        });
+                    } else {
+                        gameContainer.innerHTML = '<div class="no-games">暂无游戏</div>';
+                    }
                 }
             } catch (error) {
                 console.error('Error loading games:', error);
@@ -889,6 +865,59 @@
                 gameContainer.innerHTML = '<div class="error">加载游戏失败，请刷新页面重试</div>';
             }
         }
+
+        // 初始化默认游戏数据
+        function initializeDefaultGames() {
+            const defaultGames = [
+                ...gamesData.popular.map(game => ({
+                    id: Date.now() + Math.random(),
+                    image: game.image,
+                    title: game.title,
+                    keywords: game.category,
+                    url: 'https://snooker.pics/',
+                    categories: {
+                        all: true,
+                        hot: true,
+                        new: false
+                    }
+                })),
+                ...gamesData.new.map(game => ({
+                    id: Date.now() + Math.random(),
+                    image: game.image,
+                    title: game.title,
+                    keywords: game.category,
+                    url: 'https://snooker.pics/',
+                    categories: {
+                        all: true,
+                        hot: false,
+                        new: true
+                    }
+                }))
+            ];
+            
+            localStorage.setItem('games', JSON.stringify(defaultGames));
+            localStorage.setItem('lastUpdate', Date.now().toString());
+        }
+
+        // 页面加载和数据更新检查
+        function checkForUpdates() {
+            if (document.visibilityState === 'visible') {
+                loadGames();
+            }
+        }
+
+        // 页面可见性变化时检查更新
+        document.addEventListener('visibilitychange', checkForUpdates);
+
+        // 定期检查更新（每2秒）
+        setInterval(checkForUpdates, 2000);
+
+        // 监听 storage 事件
+        window.addEventListener('storage', function(e) {
+            if (e.key === 'games' || e.key === 'lastUpdate') {
+                loadGames();
+            }
+        });
 
         // 切换分类
         function switchCategory(category) {
@@ -938,6 +967,7 @@
             // 默认显示全部游戏
             switchCategory('all');
             loadAds();
+            loadGames();
         });
 
         // 添加移动端菜单切换功能
@@ -1046,13 +1076,6 @@
                 });
             });
         });
-
-        // 移除旧的 storage 事件监听器，改用定时刷新
-        setInterval(() => {
-            if (document.visibilityState === 'visible') {
-                loadGames();
-            }
-        }, 5000);
     </script>
 </body>
 </html> 
