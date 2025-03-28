@@ -171,7 +171,20 @@
         <div class="tab-buttons">
             <button onclick="showGameManagement()">游戏管理</button>
             <button onclick="showAdManagement()">广告管理</button>
+            <button onclick="showTokenManagement()">Token设置</button>
             <button onclick="logout()" style="float: right;">退出登录</button>
+        </div>
+
+        <div id="tokenManagement" style="display: none;">
+            <h3>GitHub Token 设置</h3>
+            <div class="form-group">
+                <label>GitHub Personal Access Token</label>
+                <input type="password" id="githubToken" placeholder="输入你的 GitHub Personal Access Token">
+                <p style="color: #666; font-size: 0.9em; margin-top: 5px;">
+                    请确保 Token 具有 repo 权限。Token 将安全地存储在浏览器中。
+                </p>
+            </div>
+            <button onclick="saveToken()">保存 Token</button>
         </div>
 
         <div id="gameManagement">
@@ -241,105 +254,218 @@
         const ADMIN_USERNAME = 'admin';
         const ADMIN_PASSWORD = 'admin123';
 
-        // 初始化默认游戏数据
-        if (!localStorage.getItem('games')) {
-            const defaultGames = [
-                // 热门游戏数据
-                { title: "Rise Up", category: "Action", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "2048", category: "Puzzle", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "Snake", category: "Arcade", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "Tetris", category: "Puzzle", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "Pacman", category: "Arcade", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "Minecraft", category: "Adventure", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "Angry Birds", category: "Action", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "Candy Crush", category: "Puzzle", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "Subway Surfers", category: "Action", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "Fruit Ninja", category: "Action", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "Crossy Road", category: "Arcade", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "Temple Run", category: "Action", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "Cut the Rope", category: "Puzzle", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "Plants vs Zombies", category: "Strategy", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "Bejeweled", category: "Puzzle", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "Monster Truck", category: "Racing", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "Bubble Shooter", category: "Puzzle", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "Zombie Defense", category: "Strategy", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "Car Racing", category: "Racing", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "Word Search", category: "Puzzle", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "Space Shooter", category: "Action", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "Math Blaster", category: "Educational", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "Chess", category: "Strategy", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "Checkers", category: "Strategy", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" }
-            ].map(game => ({
-                id: Date.now() + Math.random(),
-                image: game.image,
-                title: game.title,
-                keywords: game.category,
-                url: 'https://snooker.pics/',
-                categories: {
-                    all: true,
-                    hot: true,
-                    new: false
-                }
-            })).concat(
-                // 最新游戏数据
-                [
-                    { title: "New Game 1", category: "Action", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                    { title: "New Game 2", category: "Puzzle", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                    { title: "New Game 3", category: "Arcade", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                    { title: "New Game 4", category: "Strategy", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                    { title: "New Game 5", category: "Racing", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                    { title: "New Game 6", category: "Educational", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                    { title: "New Game 7", category: "Action", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                    { title: "New Game 8", category: "Puzzle", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                    { title: "New Game 9", category: "Arcade", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                    { title: "New Game 10", category: "Strategy", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                    { title: "New Game 11", category: "Racing", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                    { title: "New Game 12", category: "Educational", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                    { title: "New Game 13", category: "Action", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                    { title: "New Game 14", category: "Puzzle", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                    { title: "New Game 15", category: "Arcade", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                    { title: "New Game 16", category: "Strategy", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                    { title: "New Game 17", category: "Racing", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                    { title: "New Game 18", category: "Educational", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                    { title: "New Game 19", category: "Action", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                    { title: "New Game 20", category: "Puzzle", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                    { title: "New Game 21", category: "Arcade", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                    { title: "New Game 22", category: "Strategy", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                    { title: "New Game 23", category: "Racing", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                    { title: "New Game 24", category: "Educational", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" }
-                ].map(game => ({
-                    id: Date.now() + Math.random(),
-                    image: game.image,
-                    title: game.title,
-                    keywords: game.category,
-                    url: 'https://snooker.pics/',
-                    categories: {
-                        all: true,
-                        hot: false,
-                        new: true
-                    }
-                }))
-            );
-            
-            localStorage.setItem('games', JSON.stringify(defaultGames));
+        // GitHub 配置
+        const GITHUB_REPO = 'psqhb888/gamehaven.vip'; // 你的仓库名
+        const GITHUB_API_URL = `https://api.github.com/repos/${GITHUB_REPO}/issues`;
+
+        function getGitHubToken() {
+            return localStorage.getItem('GITHUB_TOKEN') || '';
         }
 
-        // 初始化默认广告数据
-        if (!localStorage.getItem('ads')) {
-            const defaultAds = {
-                top: `<a href="https://snooker.pics/" class="top-ad-box" target="_blank">
-                        <img src="https://images.unsplash.com/photo-1511512578047-dfb367046420?w=800&auto=format&fit=crop&q=60" alt="Game Advertisement 1">
-                        <span class="ad-label">Sponsored</span>
-                        <div class="ad-text">体验最刺激的动作游戏，立即开始冒险！</div>
-                    </a>
-                    <a href="https://snooker.pics/" class="top-ad-box" target="_blank">
-                        <img src="https://images.unsplash.com/photo-1511512578047-dfb367046420?w=800&auto=format&fit=crop&q=60" alt="Game Advertisement 2">
-                        <span class="ad-label">Sponsored</span>
-                        <div class="ad-text">挑战你的智力，解开所有谜题！</div>
-                    </a>`,
-                bottom: ''
-            };
-            localStorage.setItem('ads', JSON.stringify(defaultAds));
+        // 从 GitHub Issues 加载游戏数据
+        async function loadGamesFromServer() {
+            try {
+                const token = getGitHubToken();
+                if (!token) {
+                    throw new Error('GitHub Token 未设置');
+                }
+
+                const response = await fetch(`${GITHUB_API_URL}?labels=games&state=open`, {
+                    headers: {
+                        'Authorization': `token ${token}`,
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('网络响应不正常');
+                }
+
+                const issues = await response.json();
+                const latestIssue = issues[0];
+                if (!latestIssue) {
+                    return [];
+                }
+
+                try {
+                    return JSON.parse(latestIssue.body);
+                } catch (e) {
+                    console.error('解析游戏数据失败:', e);
+                    return [];
+                }
+            } catch (error) {
+                console.error('从服务器加载数据失败:', error);
+                if (error.message === 'GitHub Token 未设置') {
+                    alert('请先在 Token 设置中配置 GitHub Token');
+                }
+                return [];
+            }
+        }
+
+        // 保存游戏数据到 GitHub Issues
+        async function saveGamesToServer(games) {
+            try {
+                const token = getGitHubToken();
+                if (!token) {
+                    throw new Error('GitHub Token 未设置');
+                }
+
+                const existingIssues = await fetch(`${GITHUB_API_URL}?labels=games&state=open`, {
+                    headers: {
+                        'Authorization': `token ${token}`,
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
+                });
+
+                const issues = await existingIssues.json();
+                const latestIssue = issues[0];
+
+                if (latestIssue) {
+                    // 更新现有 issue
+                    const updateResponse = await fetch(`${GITHUB_API_URL}/${latestIssue.number}`, {
+                        method: 'PATCH',
+                        headers: {
+                            'Authorization': `token ${token}`,
+                            'Accept': 'application/vnd.github.v3+json',
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            body: JSON.stringify(games)
+                        })
+                    });
+
+                    if (!updateResponse.ok) {
+                        throw new Error('更新游戏数据失败');
+                    }
+                } else {
+                    // 创建新 issue
+                    const createResponse = await fetch(GITHUB_API_URL, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `token ${token}`,
+                            'Accept': 'application/vnd.github.v3+json',
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            title: 'Game Data Storage',
+                            body: JSON.stringify(games),
+                            labels: ['games']
+                        })
+                    });
+
+                    if (!createResponse.ok) {
+                        throw new Error('创建游戏数据存储失败');
+                    }
+                }
+
+                return true;
+            } catch (error) {
+                console.error('保存游戏数据失败:', error);
+                if (error.message === 'GitHub Token 未设置') {
+                    alert('请先在 Token 设置中配置 GitHub Token');
+                }
+                return false;
+            }
+        }
+
+        // 从 GitHub Issues 加载广告数据
+        async function loadAdsFromServer() {
+            try {
+                const token = getGitHubToken();
+                if (!token) {
+                    throw new Error('GitHub Token 未设置');
+                }
+
+                const response = await fetch(`${GITHUB_API_URL}?labels=ads&state=open`, {
+                    headers: {
+                        'Authorization': `token ${token}`,
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('网络响应不正常');
+                }
+
+                const issues = await response.json();
+                const latestIssue = issues[0];
+                if (!latestIssue) {
+                    return { top: '', bottom: '' };
+                }
+
+                try {
+                    return JSON.parse(latestIssue.body);
+                } catch (e) {
+                    console.error('解析广告数据失败:', e);
+                    return { top: '', bottom: '' };
+                }
+            } catch (error) {
+                console.error('从服务器加载广告数据失败:', error);
+                return { top: '', bottom: '' };
+            }
+        }
+
+        // 保存广告数据到 GitHub Issues
+        async function saveAdsToServer(ads) {
+            try {
+                const token = getGitHubToken();
+                if (!token) {
+                    throw new Error('GitHub Token 未设置');
+                }
+
+                const existingIssues = await fetch(`${GITHUB_API_URL}?labels=ads&state=open`, {
+                    headers: {
+                        'Authorization': `token ${token}`,
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
+                });
+
+                const issues = await existingIssues.json();
+                const latestIssue = issues[0];
+
+                if (latestIssue) {
+                    // 更新现有 issue
+                    const updateResponse = await fetch(`${GITHUB_API_URL}/${latestIssue.number}`, {
+                        method: 'PATCH',
+                        headers: {
+                            'Authorization': `token ${token}`,
+                            'Accept': 'application/vnd.github.v3+json',
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            body: JSON.stringify(ads)
+                        })
+                    });
+
+                    if (!updateResponse.ok) {
+                        throw new Error('更新广告数据失败');
+                    }
+                } else {
+                    // 创建新 issue
+                    const createResponse = await fetch(GITHUB_API_URL, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `token ${token}`,
+                            'Accept': 'application/vnd.github.v3+json',
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            title: 'Advertisement Data Storage',
+                            body: JSON.stringify(ads),
+                            labels: ['ads']
+                        })
+                    });
+
+                    if (!createResponse.ok) {
+                        throw new Error('创建广告数据存储失败');
+                    }
+                }
+
+                return true;
+            } catch (error) {
+                console.error('保存广告数据失败:', error);
+                return false;
+            }
         }
 
         function login() {
@@ -373,32 +499,118 @@
             document.getElementById('adManagement').style.display = 'block';
         }
 
-        function addGame() {
-            const games = JSON.parse(localStorage.getItem('games'));
-            const newGame = {
-                id: Date.now(),
-                image: document.getElementById('gameImage').value,
-                title: document.getElementById('gameTitle').value,
-                keywords: document.getElementById('gameKeywords').value,
-                url: document.getElementById('gameUrl').value,
-                categories: {
-                    all: document.getElementById('allGames').checked,
-                    hot: document.getElementById('hotGames').checked,
-                    new: document.getElementById('newGames').checked
-                }
-            };
-
-            games.push(newGame);
-            localStorage.setItem('games', JSON.stringify(games));
-            loadGames();
-            clearGameForm();
+        function showTokenManagement() {
+            document.getElementById('gameManagement').style.display = 'none';
+            document.getElementById('adManagement').style.display = 'none';
+            document.getElementById('tokenManagement').style.display = 'block';
+            
+            // 显示当前保存的 token（部分隐藏）
+            const token = getGitHubToken();
+            const tokenInput = document.getElementById('githubToken');
+            if (token) {
+                tokenInput.value = ''; // 清空显示
+                tokenInput.placeholder = '当前已设置 Token（输入新值以更新）';
+            }
         }
 
-        function deleteGame(id) {
-            const games = JSON.parse(localStorage.getItem('games'));
-            const updatedGames = games.filter(game => game.id !== id);
-            localStorage.setItem('games', JSON.stringify(updatedGames));
-            loadGames();
+        function saveToken() {
+            const token = document.getElementById('githubToken').value.trim();
+            if (!token) {
+                alert('请输入 GitHub Token！');
+                return;
+            }
+
+            localStorage.setItem('GITHUB_TOKEN', token);
+            alert('Token 已保存！');
+            document.getElementById('githubToken').value = '';
+        }
+
+        // 添加游戏
+        async function addGame() {
+            const title = document.getElementById('gameTitle').value;
+            const image = document.getElementById('gameImage').value;
+            const url = document.getElementById('gameUrl').value;
+            const keywords = document.getElementById('gameKeywords').value;
+            
+            const categories = {
+                all: document.getElementById('allGames').checked,
+                hot: document.getElementById('hotGames').checked,
+                new: document.getElementById('newGames').checked
+            };
+
+            const newGame = { title, image, url, keywords, categories };
+
+            try {
+                const games = await loadGamesFromServer();
+                games.push(newGame);
+                
+                const success = await saveGamesToServer(games);
+                if (success) {
+                    alert('游戏添加成功！');
+                    clearGameForm();
+                    loadGameList();
+                } else {
+                    alert('添加失败，请重试！');
+                }
+            } catch (error) {
+                console.error('添加游戏失败:', error);
+                alert('添加失败，请重试！');
+            }
+        }
+
+        // 加载游戏列表
+        async function loadGameList() {
+            try {
+                const games = await loadGamesFromServer();
+                const gameList = document.getElementById('gameList');
+                gameList.innerHTML = '<h4>游戏列表</h4>';
+
+                games.forEach((game, index) => {
+                    const gameElement = document.createElement('div');
+                    gameElement.className = 'game-item';
+                    gameElement.innerHTML = `
+                        <div class="preview">
+                            <img src="${game.image}" alt="${game.title}">
+                            <div class="info">
+                                <h3>${game.title}</h3>
+                                <p>${game.keywords}</p>
+                                <div class="category-tags">
+                                    ${game.categories.all ? '<span class="category-tag">全部游戏</span>' : ''}
+                                    ${game.categories.hot ? '<span class="category-tag">热门游戏</span>' : ''}
+                                    ${game.categories.new ? '<span class="category-tag">最新游戏</span>' : ''}
+                                </div>
+                            </div>
+                            <div class="actions">
+                                <button onclick="deleteGame(${index})">删除</button>
+                            </div>
+                        </div>
+                    `;
+                    gameList.appendChild(gameElement);
+                });
+            } catch (error) {
+                console.error('加载游戏列表失败:', error);
+            }
+        }
+
+        // 删除游戏
+        async function deleteGame(index) {
+            if (!confirm('确定要删除这个游戏吗？')) return;
+
+            try {
+                const games = await loadGamesFromServer();
+                games.splice(index, 1);
+                
+                const success = await saveGamesToServer(games);
+                if (success) {
+                    alert('删除成功！');
+                    loadGameList();
+                } else {
+                    alert('删除失败，请重试！');
+                }
+            } catch (error) {
+                console.error('删除游戏失败:', error);
+                alert('删除失败，请重试！');
+            }
         }
 
         function addAd() {
@@ -424,106 +636,6 @@
             localStorage.setItem('ads', JSON.stringify(ads));
             loadAds();
             clearAdForm();
-        }
-
-        function loadGames() {
-            const games = JSON.parse(localStorage.getItem('games'));
-            const gameList = document.getElementById('gameList');
-            gameList.innerHTML = '<h4>游戏列表</h4>';
-
-            games.forEach(game => {
-                const gameElement = document.createElement('div');
-                gameElement.className = 'game-item';
-                gameElement.innerHTML = `
-                    <div class="preview">
-                        <img src="${game.image}" alt="${game.title}">
-                        <div class="info">
-                            <h3>${game.title}</h3>
-                            <p>${game.keywords}</p>
-                            <div class="category-tags">
-                                ${game.categories.all ? '<span class="category-tag">全部游戏</span>' : ''}
-                                ${game.categories.hot ? '<span class="category-tag">热门游戏</span>' : ''}
-                                ${game.categories.new ? '<span class="category-tag">最新游戏</span>' : ''}
-                            </div>
-                        </div>
-                        <div class="actions">
-                            <button onclick="editGame(${game.id})">编辑</button>
-                            <button onclick="deleteGame(${game.id})">删除</button>
-                        </div>
-                    </div>
-                    <div class="edit-form">
-                        <div class="form-group">
-                            <label>游戏图片URL</label>
-                            <input type="text" class="edit-image" value="${game.image}">
-                        </div>
-                        <div class="form-group">
-                            <label>游戏标题</label>
-                            <input type="text" class="edit-title" value="${game.title}">
-                        </div>
-                        <div class="form-group">
-                            <label>关键词</label>
-                            <input type="text" class="edit-keywords" value="${game.keywords}">
-                        </div>
-                        <div class="form-group">
-                            <label>跳转地址</label>
-                            <input type="text" class="edit-url" value="${game.url}">
-                        </div>
-                        <div class="form-group">
-                            <label>分类</label>
-                            <div>
-                                <input type="checkbox" class="edit-all" ${game.categories.all ? 'checked' : ''}> 全部游戏
-                                <input type="checkbox" class="edit-hot" ${game.categories.hot ? 'checked' : ''}> 热门游戏
-                                <input type="checkbox" class="edit-new" ${game.categories.new ? 'checked' : ''}> 最新游戏
-                            </div>
-                        </div>
-                        <button onclick="saveGame(${game.id}, this.parentElement)">保存</button>
-                        <button onclick="cancelEdit(${game.id})">取消</button>
-                    </div>
-                `;
-                gameList.appendChild(gameElement);
-            });
-        }
-
-        function editGame(id) {
-            // 取消其他正在编辑的游戏
-            document.querySelectorAll('.game-item.editing').forEach(item => {
-                if (item.dataset.gameId != id) {
-                    item.classList.remove('editing');
-                }
-            });
-
-            // 开始编辑当前游戏
-            const gameItem = document.querySelector(`.game-item:has(button[onclick*="${id}"])`);
-            gameItem.classList.add('editing');
-            gameItem.dataset.gameId = id;
-        }
-
-        function cancelEdit(id) {
-            const gameItem = document.querySelector(`.game-item[data-game-id="${id}"]`);
-            gameItem.classList.remove('editing');
-        }
-
-        function saveGame(id, form) {
-            const games = JSON.parse(localStorage.getItem('games'));
-            const gameIndex = games.findIndex(g => g.id === id);
-            
-            if (gameIndex !== -1) {
-                games[gameIndex] = {
-                    ...games[gameIndex],
-                    image: form.querySelector('.edit-image').value,
-                    title: form.querySelector('.edit-title').value,
-                    keywords: form.querySelector('.edit-keywords').value,
-                    url: form.querySelector('.edit-url').value,
-                    categories: {
-                        all: form.querySelector('.edit-all').checked,
-                        hot: form.querySelector('.edit-hot').checked,
-                        new: form.querySelector('.edit-new').checked
-                    }
-                };
-                
-                localStorage.setItem('games', JSON.stringify(games));
-                loadGames();
-            }
         }
 
         function loadAds() {
