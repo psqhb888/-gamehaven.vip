@@ -783,7 +783,6 @@
         function loadGames() {
             const games = JSON.parse(localStorage.getItem('games')) || [];
             const gameContainer = document.querySelector('.game-grid');
-            const isMobile = window.innerWidth <= 768;
             
             // 清空现有内容
             gameContainer.innerHTML = '';
@@ -858,23 +857,6 @@
             }
         }
 
-        // 监听窗口大小变化
-        window.addEventListener('resize', () => {
-            loadGames();
-        });
-
-        // 页面加载时初始化数据
-        window.addEventListener('load', () => {
-            // 默认显示全部游戏
-            switchCategory('all');
-            loadAds();
-        });
-
-        // 移动端菜单切换
-        document.querySelector('.mobile-menu-btn').addEventListener('click', () => {
-            document.querySelector('.mobile-menu').classList.toggle('active');
-        });
-
         // 从localStorage加载广告数据
         function loadAds() {
             const ads = JSON.parse(localStorage.getItem('ads')) || { top: '', bottom: '' };
@@ -884,20 +866,22 @@
             if (ads.top) {
                 topAdSection.innerHTML = ads.top;
             }
-            if (ads.bottom) {
+            if (ads.bottom && bottomAdSection) {
                 bottomAdSection.innerHTML = ads.bottom;
             }
         }
 
-        // Language translations
+        // 语言翻译
         const translations = {
             en: {
+                allGames: "All Games",
                 popular: "Popular Games",
                 new: "New Games",
                 more: "More Games",
                 home: "Home"
             },
             zh: {
+                allGames: "全部游戏",
                 popular: "热门游戏",
                 new: "最新游戏",
                 more: "更多游戏",
@@ -905,14 +889,37 @@
             }
         };
 
-        // Function to change language
+        // 切换语言
         function changeLanguage(lang) {
-            document.querySelector('.section:first-child .section-title').textContent = translations[lang].popular;
-            document.querySelector('.section:last-child .section-title').textContent = translations[lang].new;
-            document.querySelectorAll('.more-btn').forEach(btn => {
-                btn.textContent = translations[lang].more;
-            });
+            // 更新导航菜单
+            const navLinks = document.querySelectorAll('.nav-link');
+            navLinks[0].textContent = translations[lang].allGames;
+            navLinks[1].textContent = translations[lang].popular;
+            navLinks[2].textContent = translations[lang].new;
+
+            // 更新移动端菜单
+            const mobileLinks = document.querySelectorAll('.mobile-menu a');
+            mobileLinks[0].textContent = translations[lang].allGames;
+            mobileLinks[1].textContent = translations[lang].popular;
+            mobileLinks[2].textContent = translations[lang].new;
+
+            // 更新分类按钮
+            const categoryBtns = document.querySelectorAll('.category-btn');
+            categoryBtns[0].textContent = translations[lang].allGames;
+            categoryBtns[1].textContent = translations[lang].popular;
+            categoryBtns[2].textContent = translations[lang].new;
         }
+
+        // 页面加载时初始化
+        window.addEventListener('load', () => {
+            switchCategory('all');
+            loadAds();
+        });
+
+        // 移动端菜单切换
+        document.querySelector('.mobile-menu-btn').addEventListener('click', () => {
+            document.querySelector('.mobile-menu').classList.toggle('active');
+        });
     </script>
 </body>
 </html> 
