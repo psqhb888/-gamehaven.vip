@@ -1101,29 +1101,29 @@
         }
 
         // 页面加载时初始化
-        function initializePage() {
+        async function initializePage() {
             try {
                 // 默认显示全部游戏
-                switchCategory('all');
-                loadAds();
+                await switchCategory('all');
+                await loadAds();
                 changeLanguage(currentLang);
             
-            // 移动菜单切换
-            const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
-            const mobileMenu = document.querySelector('.mobile-menu');
-            
+                // 移动菜单切换
+                const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+                const mobileMenu = document.querySelector('.mobile-menu');
+                
                 if (mobileMenuBtn && mobileMenu) {
-            mobileMenuBtn.addEventListener('click', () => {
-                mobileMenu.classList.toggle('active');
-            });
+                    mobileMenuBtn.addEventListener('click', () => {
+                        mobileMenu.classList.toggle('active');
+                    });
 
-            // 点击菜单项后关闭菜单
-            const mobileMenuLinks = document.querySelectorAll('.mobile-menu a');
-            mobileMenuLinks.forEach(link => {
-                link.addEventListener('click', () => {
-                    mobileMenu.classList.remove('active');
-                });
-            });
+                    // 点击菜单项后关闭菜单
+                    const mobileMenuLinks = document.querySelectorAll('.mobile-menu a');
+                    mobileMenuLinks.forEach(link => {
+                        link.addEventListener('click', () => {
+                            mobileMenu.classList.remove('active');
+                        });
+                    });
                 }
             } catch (e) {
                 console.error('初始化页面失败:', e);
