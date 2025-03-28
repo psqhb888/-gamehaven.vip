@@ -910,22 +910,17 @@
             }
         }
 
-        // 页面加载时初始化数据
-        window.addEventListener('load', () => {
-            // 默认显示全部游戏
-            switchCategory('all');
-            loadAds();
-        });
-
         // Language translations
         const translations = {
             en: {
+                allGames: "All Games",
                 popular: "Popular Games",
                 new: "New Games",
                 more: "More Games",
                 home: "Home"
             },
             zh: {
+                allGames: "全部游戏",
                 popular: "热门游戏",
                 new: "最新游戏",
                 more: "更多游戏",
@@ -933,17 +928,54 @@
             }
         };
 
+        let currentLang = 'zh'; // 默认语言
+
         // Function to change language
         function changeLanguage(lang) {
-            document.querySelector('.section:first-child .section-title').textContent = translations[lang].popular;
-            document.querySelector('.section:last-child .section-title').textContent = translations[lang].new;
-            document.querySelectorAll('.more-btn').forEach(btn => {
-                btn.textContent = translations[lang].more;
+            currentLang = lang;
+            const t = translations[lang];
+            
+            // 更新导航菜单
+            document.querySelectorAll('.nav-link').forEach(link => {
+                if (link.textContent.toLowerCase().includes('all')) {
+                    link.textContent = t.allGames;
+                } else if (link.textContent.toLowerCase().includes('popular')) {
+                    link.textContent = t.popular;
+                } else if (link.textContent.toLowerCase().includes('new')) {
+                    link.textContent = t.new;
+                }
+            });
+
+            // 更新分类按钮
+            document.querySelectorAll('.category-btn').forEach(btn => {
+                if (btn.dataset.category === 'all') {
+                    btn.textContent = t.allGames;
+                } else if (btn.dataset.category === 'hot') {
+                    btn.textContent = t.popular;
+                } else if (btn.dataset.category === 'new') {
+                    btn.textContent = t.new;
+                }
+            });
+
+            // 更新移动端菜单
+            document.querySelectorAll('.mobile-menu a').forEach(link => {
+                if (link.textContent.toLowerCase().includes('all')) {
+                    link.textContent = t.allGames;
+                } else if (link.textContent.toLowerCase().includes('popular')) {
+                    link.textContent = t.popular;
+                } else if (link.textContent.toLowerCase().includes('new')) {
+                    link.textContent = t.new;
+                }
             });
         }
 
-        // Initialize the page
+        // 页面加载时初始化
         document.addEventListener('DOMContentLoaded', () => {
+            // 默认显示全部游戏
+            switchCategory('all');
+            loadAds();
+            changeLanguage(currentLang);
+            
             // 移动菜单切换
             const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
             const mobileMenu = document.querySelector('.mobile-menu');
@@ -959,10 +991,6 @@
                     mobileMenu.classList.remove('active');
                 });
             });
-
-            // 加载游戏和广告
-            loadGames();
-            loadAds();
         });
     </script>
 </body>
