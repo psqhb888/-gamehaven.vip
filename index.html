@@ -861,13 +861,9 @@
         function loadAds() {
             const ads = JSON.parse(localStorage.getItem('ads')) || { top: '', bottom: '' };
             const topAdSection = document.querySelector('.top-ad-section');
-            const bottomAdSection = document.querySelector('.bottom-ad-section');
 
             if (ads.top) {
                 topAdSection.innerHTML = ads.top;
-            }
-            if (ads.bottom && bottomAdSection) {
-                bottomAdSection.innerHTML = ads.bottom;
             }
         }
 
