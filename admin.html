@@ -613,83 +613,166 @@
             }
         }
 
-        function addAd() {
-            const ads = JSON.parse(localStorage.getItem('ads'));
-            const position = document.getElementById('adPosition').value;
-            const image = document.getElementById('adImage').value;
-            const url = document.getElementById('adUrl').value;
-            const text = document.getElementById('adText').value;
+        // 添加广告
+        async function addAd() {
+            try {
+                const position = document.getElementById('adPosition').value;
+                const image = document.getElementById('adImage').value;
+                const url = document.getElementById('adUrl').value;
+                const text = document.getElementById('adText').value;
 
-            const adHtml = `
-                <a href="${url}" class="top-ad-box" target="_blank">
-                    <img src="${image}" alt="Advertisement">
-                    <span class="ad-label">Sponsored</span>
-                    <div class="ad-text">${text}</div>
-                </a>`;
+                // 从服务器加载现有广告
+                const ads = await loadAdsFromServer() || { top: '', bottom: '' };
 
-            if (position === 'top') {
-                ads.top = (ads.top || '') + adHtml;
-            } else {
-                ads.bottom = (ads.bottom || '') + adHtml;
+                const adHtml = `
+                    <a href="${url}" class="top-ad-box" target="_blank">
+                        <img src="${image}" alt="Advertisement">
+                        <span class="ad-label">Sponsored</span>
+                        <div class="ad-text">${text}</div>
+                    </a>`;
+
+                if (position === 'top') {
+                    ads.top = (ads.top || '') + adHtml;
+                } else {
+                    ads.bottom = (ads.bottom || '') + adHtml;
+                }
+
+                const success = await saveAdsToServer(ads);
+                if (success) {
+                    alert('广告添加成功！');
+                    clearAdForm();
+                    loadAds();
+                } else {
+                    alert('添加失败，请重试！');
+                }
+            } catch (error) {
+                console.error('添加广告失败:', error);
+                alert('添加失败，请重试！');
             }
-
-            localStorage.setItem('ads', JSON.stringify(ads));
-            loadAds();
-            clearAdForm();
         }
 
-        function loadAds() {
-            const ads = JSON.parse(localStorage.getItem('ads'));
-            const adList = document.getElementById('adList');
-            adList.innerHTML = '<h4>当前广告</h4>';
+        // 加载广告列表
+        async function loadAds() {
+            try {
+                const ads = await loadAdsFromServer() || { top: '', bottom: '' };
+                const adList = document.getElementById('adList');
+                adList.innerHTML = '<h4>当前广告</h4>';
 
-            for (const [position, code] of Object.entries(ads)) {
-                if (!code) continue;
+                for (const [position, code] of Object.entries(ads)) {
+                    if (!code) continue;
 
-                // 解析现有广告代码中的信息
+                    // 解析现有广告代码中的信息
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(code, 'text/html');
+                    const adElements = doc.querySelectorAll('.top-ad-box');
+
+                    adElements.forEach((adElement, index) => {
+                        const image = adElement.querySelector('img').src;
+                        const url = adElement.href;
+                        const text = adElement.querySelector('.ad-text').textContent;
+
+                        const adItem = document.createElement('div');
+                        adItem.className = 'ad-item';
+                        adItem.innerHTML = `
+                            <div class="ad-preview">
+                                <img src="${image}" alt="Advertisement">
+                                <div class="ad-info">
+                                    <p><strong>位置：</strong>${position === 'top' ? '顶部广告' : '底部广告'}</p>
+                                    <p><strong>链接：</strong>${url}</p>
+                                    <p><strong>描述：</strong>${text}</p>
+                                </div>
+                                <div class="ad-actions">
+                                    <button onclick="editAd('${position}', ${index})">编辑</button>
+                                    <button onclick="deleteAd('${position}', ${index})">删除</button>
+                                </div>
+                            </div>
+                            <div class="edit-form">
+                                <div class="form-group">
+                                    <label>广告图片URL</label>
+                                    <input type="text" class="edit-image" value="${image}">
+                                </div>
+                                <div class="form-group">
+                                    <label>跳转链接</label>
+                                    <input type="text" class="edit-url" value="${url}">
+                                </div>
+                                <div class="form-group">
+                                    <label>广告文字</label>
+                                    <input type="text" class="edit-text" value="${text}">
+                                </div>
+                                <button onclick="saveAd('${position}', ${index}, this.parentElement)">保存</button>
+                                <button onclick="cancelAdEdit('${position}', ${index})">取消</button>
+                            </div>
+                        `;
+                        adList.appendChild(adItem);
+                    });
+                }
+            } catch (error) {
+                console.error('加载广告列表失败:', error);
+                alert('加载广告列表失败，请重试！');
+            }
+        }
+
+        // 保存编辑后的广告
+        async function saveAd(position, index, form) {
+            try {
+                const ads = await loadAdsFromServer() || { top: '', bottom: '' };
                 const parser = new DOMParser();
-                const doc = parser.parseFromString(code, 'text/html');
+                const doc = parser.parseFromString(ads[position], 'text/html');
                 const adElements = doc.querySelectorAll('.top-ad-box');
 
-                adElements.forEach((adElement, index) => {
-                    const image = adElement.querySelector('img').src;
-                    const url = adElement.href;
-                    const text = adElement.querySelector('.ad-text').textContent;
+                if (adElements[index]) {
+                    const newAdHtml = `
+                        <a href="${form.querySelector('.edit-url').value}" class="top-ad-box" target="_blank">
+                            <img src="${form.querySelector('.edit-image').value}" alt="Advertisement">
+                            <span class="ad-label">Sponsored</span>
+                            <div class="ad-text">${form.querySelector('.edit-text').value}</div>
+                        </a>`;
 
-                    const adItem = document.createElement('div');
-                    adItem.className = 'ad-item';
-                    adItem.innerHTML = `
-                        <div class="ad-preview">
-                            <img src="${image}" alt="Advertisement">
-                            <div class="ad-info">
-                                <p><strong>位置：</strong>${position === 'top' ? '顶部广告' : '底部广告'}</p>
-                                <p><strong>链接：</strong>${url}</p>
-                                <p><strong>描述：</strong>${text}</p>
-                            </div>
-                            <div class="ad-actions">
-                                <button onclick="editAd('${position}', ${index})">编辑</button>
-                                <button onclick="deleteAd('${position}', ${index})">删除</button>
-                            </div>
-                        </div>
-                        <div class="edit-form">
-                            <div class="form-group">
-                                <label>广告图片URL</label>
-                                <input type="text" class="edit-image" value="${image}">
-                            </div>
-                            <div class="form-group">
-                                <label>跳转链接</label>
-                                <input type="text" class="edit-url" value="${url}">
-                            </div>
-                            <div class="form-group">
-                                <label>广告文字</label>
-                                <input type="text" class="edit-text" value="${text}">
-                            </div>
-                            <button onclick="saveAd('${position}', ${index}, this.parentElement)">保存</button>
-                            <button onclick="cancelAdEdit('${position}', ${index})">取消</button>
-                        </div>
-                    `;
-                    adList.appendChild(adItem);
-                });
+                    const newAdsArray = Array.from(adElements);
+                    newAdsArray[index] = parser.parseFromString(newAdHtml, 'text/html').querySelector('.top-ad-box');
+                    
+                    ads[position] = newAdsArray.map(el => el.outerHTML).join('');
+                    const success = await saveAdsToServer(ads);
+                    
+                    if (success) {
+                        alert('广告更新成功！');
+                        loadAds();
+                    } else {
+                        alert('更新失败，请重试！');
+                    }
+                }
+            } catch (error) {
+                console.error('保存广告失败:', error);
+                alert('保存失败，请重试！');
+            }
+        }
+
+        // 删除广告
+        async function deleteAd(position, index) {
+            if (!confirm('确定要删除这个广告吗？')) return;
+
+            try {
+                const ads = await loadAdsFromServer() || { top: '', bottom: '' };
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(ads[position], 'text/html');
+                const adElements = doc.querySelectorAll('.top-ad-box');
+
+                if (adElements[index]) {
+                    const newAdsArray = Array.from(adElements);
+                    newAdsArray.splice(index, 1);
+                    ads[position] = newAdsArray.map(el => el.outerHTML).join('');
+                    
+                    const success = await saveAdsToServer(ads);
+                    if (success) {
+                        alert('广告删除成功！');
+                        loadAds();
+                    } else {
+                        alert('删除失败，请重试！');
+                    }
+                }
+            } catch (error) {
+                console.error('删除广告失败:', error);
+                alert('删除失败，请重试！');
             }
         }
 
@@ -708,44 +791,6 @@
             
             if (targetItem) {
                 targetItem.classList.add('editing');
-            }
-        }
-
-        function saveAd(position, index, form) {
-            const ads = JSON.parse(localStorage.getItem('ads'));
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(ads[position], 'text/html');
-            const adElements = doc.querySelectorAll('.top-ad-box');
-
-            if (adElements[index]) {
-                const newAdHtml = `
-                    <a href="${form.querySelector('.edit-url').value}" class="top-ad-box" target="_blank">
-                        <img src="${form.querySelector('.edit-image').value}" alt="Advertisement">
-                        <span class="ad-label">Sponsored</span>
-                        <div class="ad-text">${form.querySelector('.edit-text').value}</div>
-                    </a>`;
-
-                const newAdsArray = Array.from(adElements);
-                newAdsArray[index] = parser.parseFromString(newAdHtml, 'text/html').querySelector('.top-ad-box');
-                
-                ads[position] = newAdsArray.map(el => el.outerHTML).join('');
-                localStorage.setItem('ads', JSON.stringify(ads));
-                loadAds();
-            }
-        }
-
-        function deleteAd(position, index) {
-            const ads = JSON.parse(localStorage.getItem('ads'));
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(ads[position], 'text/html');
-            const adElements = doc.querySelectorAll('.top-ad-box');
-
-            if (adElements[index]) {
-                const newAdsArray = Array.from(adElements);
-                newAdsArray.splice(index, 1);
-                ads[position] = newAdsArray.map(el => el.outerHTML).join('');
-                localStorage.setItem('ads', JSON.stringify(ads));
-                loadAds();
             }
         }
 
