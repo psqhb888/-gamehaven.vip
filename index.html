@@ -502,7 +502,7 @@
                 min-width: 100%;
                 overflow-x: hidden;
             }
-
+            
             .header-content {
                 flex-direction: row;
                 justify-content: space-between;
@@ -791,11 +791,11 @@
             <button class="category-btn active" data-category="all" onclick="switchCategory('all')">全部游戏</button>
             <button class="category-btn" data-category="hot" onclick="switchCategory('hot')">热门游戏</button>
             <button class="category-btn" data-category="new" onclick="switchCategory('new')">最新游戏</button>
-        </div>
-        <div class="game-grid">
+            </div>
+            <div class="game-grid">
             <!-- 游戏卡片将在这里动态显示 -->
-        </div>
-    </div>
+            </div>
+            </div>
 
     <footer class="footer">
         <div class="footer-content">
@@ -809,43 +809,89 @@
     </footer>
 
     <script>
+        // GitHub 配置
+        const GITHUB_TOKEN = localStorage.getItem('GITHUB_TOKEN') || ''; // 从 localStorage 获取 token
+        const GITHUB_REPO = 'psqhb888/gamehaven.vip'; // 你的仓库名
+        const GITHUB_API_URL = `https://api.github.com/repos/${GITHUB_REPO}/issues`;
+
+        // 检查是否设置了 token
+        if (!GITHUB_TOKEN) {
+            console.warn('GitHub Token 未设置，请在管理后台设置 token');
+        }
+
         // 当前选中的分类
         let currentCategory = 'all';
 
-        // 安全的 localStorage 操作函数
-        function safeGetItem(key) {
+        // 从 GitHub Issues 加载游戏数据
+        async function loadGamesFromServer() {
             try {
-                const item = localStorage.getItem(key);
-                return item ? JSON.parse(item) : null;
-            } catch (e) {
-                console.error('读取数据失败:', e);
-                return null;
-            }
-        }
+                const response = await fetch(`${GITHUB_API_URL}?labels=games&state=open`, {
+                    headers: {
+                        'Authorization': `token ${GITHUB_TOKEN}`,
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
+                });
 
-        function safeSetItem(key, value) {
-            try {
-                localStorage.setItem(key, JSON.stringify(value));
-                return true;
-            } catch (e) {
-                console.error('保存数据失败:', e);
-                return false;
-            }
-        }
-
-        // 从localStorage加载游戏数据
-        function loadGames() {
-            try {
-                // 获取游戏数据
-                let games = [];
-                try {
-                    const gamesData = localStorage.getItem('games');
-                    games = gamesData ? JSON.parse(gamesData) : [];
-                } catch (e) {
-                    console.error('解析游戏数据失败:', e);
-                    games = [];
+                if (!response.ok) {
+                    throw new Error('网络响应不正常');
                 }
 
+                const issues = await response.json();
+                const latestIssue = issues[0];
+                if (!latestIssue) {
+                    return [];
+                }
+
+                try {
+                    return JSON.parse(latestIssue.body);
+                } catch (e) {
+                    console.error('解析游戏数据失败:', e);
+                    return [];
+                }
+            } catch (error) {
+                console.error('从服务器加载数据失败:', error);
+                return [];
+            }
+        }
+
+        // 从 GitHub Issues 加载广告数据
+        async function loadAdsFromServer() {
+            try {
+                const response = await fetch(`${GITHUB_API_URL}?labels=ads&state=open`, {
+                    headers: {
+                        'Authorization': `token ${GITHUB_TOKEN}`,
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('网络响应不正常');
+                }
+
+                const issues = await response.json();
+                const latestIssue = issues[0];
+                if (!latestIssue) {
+                    return { top: '', bottom: '' };
+                }
+
+                try {
+                    return JSON.parse(latestIssue.body);
+                } catch (e) {
+                    console.error('解析广告数据失败:', e);
+                    return { top: '', bottom: '' };
+                }
+            } catch (error) {
+                console.error('从服务器加载广告数据失败:', error);
+                return { top: '', bottom: '' };
+            }
+        }
+
+        // 修改 loadGames 函数
+        async function loadGames() {
+            try {
+                // 从服务器加载游戏数据
+                const games = await loadGamesFromServer();
+                
                 const gameContainer = document.querySelector('.game-grid');
                 if (!gameContainer) {
                     console.error('找不到游戏容器元素');
@@ -882,13 +928,13 @@
                         
                         const gameCard = `
                             <a href="${game.url || '#'}" class="game-card" target="_blank">
-                                <div class="game-image-container">
+                    <div class="game-image-container">
                                     <img src="${game.image || ''}" alt="${game.title || '游戏'}" class="game-image" onerror="this.src='https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg'">
-                                </div>
-                                <div class="game-info">
+                    </div>
+                    <div class="game-info">
                                     <h3 class="game-title">${game.title || '未命名游戏'}</h3>
                                     <p class="game-category">${game.keywords || '未分类'}</p>
-                                </div>
+                    </div>
                             </a>
                         `;
                         gamesHTML += gameCard;
@@ -977,10 +1023,10 @@
             }
         }
 
-        // 从localStorage加载广告数据
-        function loadAds() {
+        // 修改 loadAds 函数
+        async function loadAds() {
             try {
-                const ads = safeGetItem('ads') || { top: '', bottom: '' };
+                const ads = await loadAdsFromServer();
                 const topAdSection = document.querySelector('.top-ad-section');
                 const bottomAdSection = document.querySelector('.bottom-ad-section');
 
@@ -1061,23 +1107,23 @@
                 switchCategory('all');
                 loadAds();
                 changeLanguage(currentLang);
-                
-                // 移动菜单切换
-                const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
-                const mobileMenu = document.querySelector('.mobile-menu');
-                
+            
+            // 移动菜单切换
+            const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+            const mobileMenu = document.querySelector('.mobile-menu');
+            
                 if (mobileMenuBtn && mobileMenu) {
-                    mobileMenuBtn.addEventListener('click', () => {
-                        mobileMenu.classList.toggle('active');
-                    });
+            mobileMenuBtn.addEventListener('click', () => {
+                mobileMenu.classList.toggle('active');
+            });
 
-                    // 点击菜单项后关闭菜单
-                    const mobileMenuLinks = document.querySelectorAll('.mobile-menu a');
-                    mobileMenuLinks.forEach(link => {
-                        link.addEventListener('click', () => {
-                            mobileMenu.classList.remove('active');
-                        });
-                    });
+            // 点击菜单项后关闭菜单
+            const mobileMenuLinks = document.querySelectorAll('.mobile-menu a');
+            mobileMenuLinks.forEach(link => {
+                link.addEventListener('click', () => {
+                    mobileMenu.classList.remove('active');
+                });
+            });
                 }
             } catch (e) {
                 console.error('初始化页面失败:', e);
