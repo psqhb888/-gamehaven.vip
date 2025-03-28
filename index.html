@@ -765,16 +765,20 @@
     </footer>
 
     <script>
-        // 当前选中的分类
-        let currentCategory = 'all';
+        // 检查是否为移动设备
+        function isMobile() {
+            return window.innerWidth <= 768;
+        }
 
         // 从localStorage加载游戏数据
         function loadGames() {
             const games = JSON.parse(localStorage.getItem('games')) || [];
-            const gameContainer = document.querySelector('.game-grid');
+            const gameContainers = document.querySelectorAll('.game-grid');
             
-            // 清空现有内容
-            gameContainer.innerHTML = '';
+            // 清空所有游戏容器
+            gameContainers.forEach(container => {
+                container.innerHTML = '';
+            });
 
             // 根据当前选中的分类过滤游戏
             const filteredGames = games.filter(game => {
@@ -788,21 +792,44 @@
                 return false;
             });
 
-            // 显示过滤后的游戏
-            filteredGames.forEach(game => {
-                const gameCard = `
-                    <a href="${game.url}" class="game-card" target="_blank">
-                        <div class="game-image-container">
-                            <img src="${game.image}" alt="${game.title}" class="game-image">
-                        </div>
-                        <div class="game-info">
-                            <h3 class="game-title">${game.title}</h3>
-                            <p class="game-category">${game.keywords}</p>
-                        </div>
-                    </a>
-                `;
-                gameContainer.innerHTML += gameCard;
+            // 为每个游戏容器添加游戏卡片
+            gameContainers.forEach(container => {
+                filteredGames.forEach(game => {
+                    const gameCard = `
+                        <a href="${game.url}" class="game-card" target="_blank">
+                            <div class="game-image-container">
+                                <img src="${game.image}" alt="${game.title}" class="game-image">
+                            </div>
+                            <div class="game-info">
+                                <h3 class="game-title">${game.title}</h3>
+                                <p class="game-category">${game.keywords}</p>
+                            </div>
+                        </a>
+                    `;
+                    container.innerHTML += gameCard;
+                });
             });
+
+            // 更新移动端的游戏显示
+            updateMobileView();
+        }
+
+        // 更新移动端视图
+        function updateMobileView() {
+            if (isMobile()) {
+                const gameContainers = document.querySelectorAll('.game-grid');
+                const firstContainer = gameContainers[0];
+                
+                // 确保其他容器的内容与第一个容器相同
+                if (firstContainer) {
+                    const content = firstContainer.innerHTML;
+                    gameContainers.forEach((container, index) => {
+                        if (index > 0) {
+                            container.innerHTML = content;
+                        }
+                    });
+                }
+            }
         }
 
         // 切换分类
@@ -834,6 +861,16 @@
             document.querySelector('.mobile-menu').classList.remove('active');
         }
 
+        // 监听窗口大小变化
+        window.addEventListener('resize', updateMobileView);
+
+        // 页面加载时初始化数据
+        window.addEventListener('load', () => {
+            // 默认显示全部游戏
+            switchCategory('all');
+            loadAds();
+        });
+
         // 从localStorage加载广告数据
         function loadAds() {
             const ads = JSON.parse(localStorage.getItem('ads')) || { top: '', bottom: '' };
@@ -847,69 +884,6 @@
                 bottomAdSection.innerHTML = ads.bottom;
             }
         }
-
-        // 页面加载时初始化数据
-        window.addEventListener('load', () => {
-            // 默认显示全部游戏
-            switchCategory('all');
-            loadAds();
-        });
-
-        // Sample game data
-        const gamesData = {
-            popular: [
-                { title: "Rise Up", category: "Action", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "2048", category: "Puzzle", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "Snake", category: "Arcade", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "Tetris", category: "Puzzle", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "Pacman", category: "Arcade", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "Minecraft", category: "Adventure", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "Angry Birds", category: "Action", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "Candy Crush", category: "Puzzle", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "Subway Surfers", category: "Action", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "Fruit Ninja", category: "Action", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "Crossy Road", category: "Arcade", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "Temple Run", category: "Action", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "Cut the Rope", category: "Puzzle", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "Plants vs Zombies", category: "Strategy", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "Bejeweled", category: "Puzzle", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "Monster Truck", category: "Racing", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "Bubble Shooter", category: "Puzzle", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "Zombie Defense", category: "Strategy", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "Car Racing", category: "Racing", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "Word Search", category: "Puzzle", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "Space Shooter", category: "Action", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "Math Blaster", category: "Educational", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "Chess", category: "Strategy", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "Checkers", category: "Strategy", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" }
-            ],
-            new: [
-                { title: "New Game 1", category: "Action", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "New Game 2", category: "Puzzle", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "New Game 3", category: "Arcade", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "New Game 4", category: "Strategy", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "New Game 5", category: "Racing", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "New Game 6", category: "Educational", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "New Game 7", category: "Action", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "New Game 8", category: "Puzzle", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "New Game 9", category: "Arcade", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "New Game 10", category: "Strategy", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "New Game 11", category: "Racing", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "New Game 12", category: "Educational", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "New Game 13", category: "Action", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "New Game 14", category: "Puzzle", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "New Game 15", category: "Arcade", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "New Game 16", category: "Strategy", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "New Game 17", category: "Racing", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "New Game 18", category: "Educational", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "New Game 19", category: "Action", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "New Game 20", category: "Puzzle", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "New Game 21", category: "Arcade", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "New Game 22", category: "Strategy", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "New Game 23", category: "Racing", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "New Game 24", category: "Educational", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" }
-            ]
-        };
 
         // Language translations
         const translations = {
