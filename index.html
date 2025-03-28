@@ -410,7 +410,9 @@
 
         @media (max-width: 768px) {
             .game-grid {
-                grid-template-columns: repeat(2, 1fr);
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+                gap: 10px;
+                padding: 10px;
             }
             
             .header-content {
@@ -446,21 +448,20 @@
             }
 
             .game-card {
+                width: 100%;
                 margin-bottom: 10px;
             }
 
-            .game-image {
-                height: 100px;
+            .game-image-container {
+                height: 150px;
             }
 
             .game-title {
-                font-size: 0.85rem;
-                line-height: 1.1;
-                max-height: 2.2em;
+                font-size: 14px;
             }
 
             .game-category {
-                font-size: 0.75rem;
+                font-size: 12px;
             }
 
             .ad-section {
@@ -487,6 +488,16 @@
 
             .top-ad-section {
                 margin-top: 50px;
+            }
+
+            .category-buttons {
+                padding: 10px;
+                gap: 5px;
+            }
+
+            .category-btn {
+                padding: 6px 12px;
+                font-size: 14px;
             }
         }
 
@@ -690,42 +701,6 @@
             gap: 20px;
             padding: 20px;
         }
-
-        /* 移动端样式优化 */
-        @media screen and (max-width: 768px) {
-            .game-grid {
-                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-                gap: 10px;
-                padding: 10px;
-            }
-
-            .game-card {
-                width: 100%;
-                margin-bottom: 10px;
-            }
-
-            .game-image-container {
-                height: 150px;
-            }
-
-            .game-title {
-                font-size: 14px;
-            }
-
-            .game-category {
-                font-size: 12px;
-            }
-
-            .category-buttons {
-                padding: 0 10px;
-                margin-bottom: 10px;
-            }
-
-            .category-btn {
-                padding: 6px 15px;
-                font-size: 14px;
-            }
-        }
     </style>
 </head>
 <body>
@@ -803,150 +778,102 @@
     <script>
         // 当前选中的分类
         let currentCategory = 'all';
-        let lastUpdate = 0; // 添加最后更新时间戳
 
         // 从localStorage加载游戏数据
         function loadGames() {
-            try {
-                // 获取数据和更新时间戳
-                const gamesData = localStorage.getItem('games');
-                const currentUpdate = localStorage.getItem('lastUpdate') || 0;
+            const games = JSON.parse(localStorage.getItem('games')) || [];
+            const gameContainer = document.querySelector('.game-grid');
+            const isMobile = window.innerWidth <= 768;
+            
+            // 清空现有内容
+            gameContainer.innerHTML = '';
 
-                // 如果数据已更新，则重新加载
-                if (currentUpdate > lastUpdate) {
-                    lastUpdate = currentUpdate;
-                    let games = JSON.parse(gamesData);
-                    
-                    if (!games || games.length === 0) {
-                        initializeDefaultGames();
-                        games = JSON.parse(localStorage.getItem('games'));
-                    }
-
-                    const gameContainer = document.querySelector('.game-grid');
-                    gameContainer.innerHTML = '';
-
-                    // 根据当前选中的分类过滤游戏
-                    const filteredGames = games.filter(game => {
-                        if (currentCategory === 'all') {
-                            return game.categories.all;
-                        } else if (currentCategory === 'hot') {
-                            return game.categories.hot;
-                        } else if (currentCategory === 'new') {
-                            return game.categories.new;
-                        }
-                        return false;
-                    });
-
-                    // 显示过滤后的游戏
-                    if (filteredGames.length > 0) {
-                        filteredGames.forEach(game => {
-                            const gameCard = document.createElement('div');
-                            gameCard.className = 'game-card';
-                            gameCard.innerHTML = `
-                                <a href="${game.url}" target="_blank">
-                                    <div class="game-image-container">
-                                        <img src="${game.image}" alt="${game.title}" class="game-image" loading="lazy">
-                                    </div>
-                                    <div class="game-info">
-                                        <h3 class="game-title">${game.title}</h3>
-                                        <p class="game-category">${game.keywords}</p>
-                                    </div>
-                                </a>
-                            `;
-                            gameContainer.appendChild(gameCard);
-                        });
-                    } else {
-                        gameContainer.innerHTML = '<div class="no-games">暂无游戏</div>';
-                    }
+            // 根据当前选中的分类过滤游戏
+            const filteredGames = games.filter(game => {
+                if (currentCategory === 'all') {
+                    return game.categories.all;
+                } else if (currentCategory === 'hot') {
+                    return game.categories.hot;
+                } else if (currentCategory === 'new') {
+                    return game.categories.new;
                 }
-            } catch (error) {
-                console.error('Error loading games:', error);
-                const gameContainer = document.querySelector('.game-grid');
-                gameContainer.innerHTML = '<div class="error">加载游戏失败，请刷新页面重试</div>';
-            }
+                return false;
+            });
+
+            // 显示过滤后的游戏
+            filteredGames.forEach(game => {
+                const gameCard = document.createElement('a');
+                gameCard.href = game.url;
+                gameCard.className = 'game-card';
+                gameCard.target = '_blank';
+                
+                gameCard.innerHTML = `
+                    <div class="game-image-container">
+                        <img src="${game.image}" alt="${game.title}" class="game-image" loading="lazy">
+                    </div>
+                    <div class="game-info">
+                        <h3 class="game-title">${game.title}</h3>
+                        <p class="game-category">${game.keywords}</p>
+                    </div>
+                `;
+                
+                gameContainer.appendChild(gameCard);
+            });
+
+            // 更新分类按钮状态
+            updateCategoryButtons();
         }
 
-        // 初始化默认游戏数据
-        function initializeDefaultGames() {
-            const defaultGames = [
-                ...gamesData.popular.map(game => ({
-                    id: Date.now() + Math.random(),
-                    image: game.image,
-                    title: game.title,
-                    keywords: game.category,
-                    url: 'https://snooker.pics/',
-                    categories: {
-                        all: true,
-                        hot: true,
-                        new: false
-                    }
-                })),
-                ...gamesData.new.map(game => ({
-                    id: Date.now() + Math.random(),
-                    image: game.image,
-                    title: game.title,
-                    keywords: game.category,
-                    url: 'https://snooker.pics/',
-                    categories: {
-                        all: true,
-                        hot: false,
-                        new: true
-                    }
-                }))
-            ];
-            
-            localStorage.setItem('games', JSON.stringify(defaultGames));
-            localStorage.setItem('lastUpdate', Date.now().toString());
-        }
-
-        // 页面加载和数据更新检查
-        function checkForUpdates() {
-            if (document.visibilityState === 'visible') {
-                loadGames();
-            }
-        }
-
-        // 页面可见性变化时检查更新
-        document.addEventListener('visibilitychange', checkForUpdates);
-
-        // 定期检查更新（每2秒）
-        setInterval(checkForUpdates, 2000);
-
-        // 监听 storage 事件
-        window.addEventListener('storage', function(e) {
-            if (e.key === 'games' || e.key === 'lastUpdate') {
-                loadGames();
-            }
-        });
-
-        // 切换分类
-        function switchCategory(category) {
-            currentCategory = category;
-            
-            // 更新中间部分按钮样式
+        // 更新分类按钮状态
+        function updateCategoryButtons() {
+            // 更新中间部分按钮
             document.querySelectorAll('.category-btn').forEach(btn => {
-                if (btn.dataset.category === category) {
+                if (btn.dataset.category === currentCategory) {
                     btn.classList.add('active');
                 } else {
                     btn.classList.remove('active');
                 }
             });
 
-            // 更新顶部导航栏样式
+            // 更新顶部导航栏
             document.querySelectorAll('.nav-link').forEach(link => {
-                if (link.textContent.toLowerCase().includes(category === 'hot' ? 'popular' : category)) {
+                if (link.textContent.toLowerCase().includes(currentCategory === 'hot' ? 'popular' : currentCategory)) {
                     link.classList.add('active');
                 } else {
                     link.classList.remove('active');
                 }
             });
+        }
 
-            // 重新加载游戏列表
+        // 切换分类
+        function switchCategory(category) {
+            currentCategory = category;
+            updateCategoryButtons();
             loadGames();
 
             // 关闭移动端菜单
-            document.querySelector('.mobile-menu').classList.remove('active');
+            const mobileMenu = document.querySelector('.mobile-menu');
+            if (mobileMenu) {
+                mobileMenu.classList.remove('active');
+            }
         }
+
+        // 监听窗口大小变化
+        window.addEventListener('resize', () => {
+            loadGames();
+        });
+
+        // 页面加载时初始化数据
+        window.addEventListener('load', () => {
+            // 默认显示全部游戏
+            switchCategory('all');
+            loadAds();
+        });
+
+        // 移动端菜单切换
+        document.querySelector('.mobile-menu-btn').addEventListener('click', () => {
+            document.querySelector('.mobile-menu').classList.toggle('active');
+        });
 
         // 从localStorage加载广告数据
         function loadAds() {
@@ -961,75 +888,6 @@
                 bottomAdSection.innerHTML = ads.bottom;
             }
         }
-
-        // 页面加载时初始化数据
-        window.addEventListener('DOMContentLoaded', () => {
-            // 默认显示全部游戏
-            switchCategory('all');
-            loadAds();
-            loadGames();
-        });
-
-        // 添加移动端菜单切换功能
-        document.querySelector('.mobile-menu-btn').addEventListener('click', function() {
-            document.querySelector('.mobile-menu').classList.toggle('active');
-        });
-
-        // Sample game data
-        const gamesData = {
-            popular: [
-                { title: "Rise Up", category: "Action", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "2048", category: "Puzzle", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "Snake", category: "Arcade", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "Tetris", category: "Puzzle", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "Pacman", category: "Arcade", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "Minecraft", category: "Adventure", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "Angry Birds", category: "Action", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "Candy Crush", category: "Puzzle", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "Subway Surfers", category: "Action", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "Fruit Ninja", category: "Action", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "Crossy Road", category: "Arcade", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "Temple Run", category: "Action", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "Cut the Rope", category: "Puzzle", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "Plants vs Zombies", category: "Strategy", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "Bejeweled", category: "Puzzle", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "Monster Truck", category: "Racing", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "Bubble Shooter", category: "Puzzle", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "Zombie Defense", category: "Strategy", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "Car Racing", category: "Racing", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "Word Search", category: "Puzzle", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "Space Shooter", category: "Action", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "Math Blaster", category: "Educational", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "Chess", category: "Strategy", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "Checkers", category: "Strategy", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" }
-            ],
-            new: [
-                { title: "New Game 1", category: "Action", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "New Game 2", category: "Puzzle", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "New Game 3", category: "Arcade", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "New Game 4", category: "Strategy", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "New Game 5", category: "Racing", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "New Game 6", category: "Educational", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "New Game 7", category: "Action", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "New Game 8", category: "Puzzle", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "New Game 9", category: "Arcade", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "New Game 10", category: "Strategy", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "New Game 11", category: "Racing", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "New Game 12", category: "Educational", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "New Game 13", category: "Action", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "New Game 14", category: "Puzzle", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "New Game 15", category: "Arcade", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "New Game 16", category: "Strategy", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "New Game 17", category: "Racing", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "New Game 18", category: "Educational", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "New Game 19", category: "Action", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "New Game 20", category: "Puzzle", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "New Game 21", category: "Arcade", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "New Game 22", category: "Strategy", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "New Game 23", category: "Racing", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" },
-                { title: "New Game 24", category: "Educational", image: "https://img.freepik.com/free-vector/neon-style-coming-soon-glowing-background-design_1017-25516.jpg" }
-            ]
-        };
 
         // Language translations
         const translations = {
@@ -1055,27 +913,6 @@
                 btn.textContent = translations[lang].more;
             });
         }
-
-        // Initialize the page
-        document.addEventListener('DOMContentLoaded', () => {
-            populateGameSections();
-            
-            // 移动菜单切换
-            const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
-            const mobileMenu = document.querySelector('.mobile-menu');
-            
-            mobileMenuBtn.addEventListener('click', () => {
-                mobileMenu.classList.toggle('active');
-            });
-
-            // 点击菜单项后关闭菜单
-            const mobileMenuLinks = document.querySelectorAll('.mobile-menu a');
-            mobileMenuLinks.forEach(link => {
-                link.addEventListener('click', () => {
-                    mobileMenu.classList.remove('active');
-                });
-            });
-        });
     </script>
 </body>
 </html> 
