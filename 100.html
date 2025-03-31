@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Play Curve Ball 3D - A modern take on the classic Pong game! Curve the ball with your racket and face increasingly challenging opponents. Experience stunning 3D visuals and addictive arcade gameplay.">
+    <meta name="keywords" content="curve ball 3d, pong game, 3d arcade, racket game, ball game, classic arcade, カーブボール3D, 曲线球3D, arcade games">
+    <meta name="author" content="Game Center">
+    <meta name="robots" content="index, follow">
+
+    <meta property="og:title" content="Curve Ball 3D - Modern Pong Experience">
+    <meta property="og:description" content="Experience the classic Pong game in 3D! Curve the ball and face increasingly challenging opponents in this addictive arcade game.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://yourdomain.com/curve-ball-3d">
+    <meta property="og:image" content="https://html5games.com/Game/Curve-Ball-3D/f3319962-5fb5-441f-811a-4baf8aeb58e7/thumbnail.jpg">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:site_name" content="Game Center">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Curve Ball 3D - Modern Pong Experience">
+    <meta name="twitter:description" content="Master the art of curving the ball in this modern 3D version of the classic Pong game!">
+    <meta name="twitter:image" content="https://html5games.com/Game/Curve-Ball-3D/f3319962-5fb5-441f-811a-4baf8aeb58e7/thumbnail.jpg">
+
+    <title>Curve Ball 3D - Modern Pong Experience | Free Online Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', sans-serif;
+            line-height: 1.6;
+            background: linear-gradient(45deg, #1a2a6c, #b21f1f, #fdbb2d);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            color: #333;
+            min-height: 100vh;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .header {
+            background: linear-gradient(135deg, #6e8efb, #a777e3);
+            color: white;
+            padding: 20px 0;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+        }
+
+        .header-content h1 {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            margin: 0;
+        }
+
+        .home-button {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            color: white;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            z-index: 1;
+        }
+
+        .home-button::before {
+            content: "←";
+            font-size: 18px;
+        }
+
+        .home-button:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .game-section {
+            margin-top: 80px;
+            padding: 20px;
+        }
+
+        .game-container {
+            position: relative;
+            width: 100%;
+            max-width: 1371px; /* 1200 * 8/7 = 1371px */
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .game-wrapper {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 16/9;
+            background: #000;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 2px solid #ff4444;
+            transform: scale(1.143);
+            transform-origin: center center;
+        }
+
+        .game-frame {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        #gameContainer {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        /* 添加一个透明的覆盖层来捕获点击 */
+        .click-interceptor {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1000;
+            cursor: pointer;
+            opacity: 0;
+        }
+
+        .game-frame-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        .game-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+        }
+
+        .play-button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .play-button:hover {
+            background: #45a049;
+        }
+
+        .game-stats {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px;
+            border-radius: 5px;
+            color: white;
+            font-size: 16px;
+            z-index: 100;
+        }
+
+        .game-info-section {
+            margin-top: 20px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .game-info-section h2 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 24px;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+
+        .game-info-section p {
+            color: #666;
+            margin-bottom: 10px;
+            line-height: 1.8;
+        }
+
+        .game-info-section .info-block {
+            margin-bottom: 20px;
+        }
+
+        .game-info-section .info-block h3 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+
+        .game-info-section ul {
+            list-style-type: none;
+            padding-left: 20px;
+        }
+
+        .game-info-section ul li {
+            color: #666;
+            margin-bottom: 8px;
+            position: relative;
+        }
+
+        .game-info-section ul li::before {
+            content: "•";
+            color: #4CAF50;
+            font-weight: bold;
+            position: absolute;
+            left: -20px;
+        }
+
+        .game-info-section .info-block {
+            margin-bottom: 20px;
+        }
+
+        .game-info-section .info-block h3 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+
+        .game-info-section ul {
+            list-style-type: none;
+            padding-left: 20px;
+        }
+
+        .game-info-section ul li {
+            color: #666;
+            margin-bottom: 8px;
+            position: relative;
+        }
+
+        .game-info-section ul li::before {
+            content: "•";
+            color: #4CAF50;
+            font-weight: bold;
+            position: absolute;
+            left: -20px;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 20px;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            margin-top: 40px;
+        }
+
+        /* 响应式布局断点 */
+        @media (max-width: 1680px) {
+            .game-container {
+                max-width: 1200px;
+            }
+        }
+
+        @media (max-width: 1280px) {
+            .game-container {
+                max-width: 960px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                padding: 10px 0;
+            }
+
+            .header-content h1 {
+                font-size: 20px;
+            }
+
+            .home-button {
+                padding: 6px 12px;
+                font-size: 14px;
+            }
+
+            .game-section {
+                margin-top: 60px;
+                padding: 10px;
+            }
+
+            .game-container {
+                padding: 10px;
+            }
+
+            .game-wrapper {
+                transform: scale(1);
+                aspect-ratio: 4/3;
+            }
+
+            .game-info-section {
+                padding: 15px;
+                margin-top: 15px;
+            }
+
+            .game-info-section h2 {
+                font-size: 18px;
+                margin-bottom: 10px;
+                padding-bottom: 8px;
+            }
+
+            .game-info-section .info-block h3 {
+                font-size: 16px;
+            }
+
+            .game-info-section p,
+            .game-info-section ul li {
+                font-size: 14px;
+                line-height: 1.5;
+                margin-bottom: 6px;
+            }
+
+            .footer {
+                margin-top: 20px;
+                padding: 15px;
+                font-size: 12px;
+            }
+
+            .timed-overlay {
+                transform: scale(1);
+                top: -8%;
+            }
+
+            .right-overlay {
+                transform: scale(1);
+                right: -2%;
+                width: 15%;
+            }
+
+            .header-overlay {
+                transform: scale(1);
+                height: 12%;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header-content h1 {
+                font-size: 18px;
+            }
+
+            .home-button {
+                padding: 5px 10px;
+                font-size: 12px;
+            }
+
+            .game-section {
+                margin-top: 50px;
+                padding: 5px;
+            }
+
+            .game-container {
+                padding: 5px;
+            }
+
+            .game-wrapper {
+                aspect-ratio: 3/4;
+            }
+
+            .game-info-section {
+                padding: 10px;
+            }
+
+            .game-info-section .info-block {
+                margin-bottom: 15px;
+            }
+
+            .timed-overlay {
+                top: -6%;
+            }
+
+            .right-overlay {
+                right: -1%;
+                width: 12%;
+            }
+
+            .header-overlay {
+                height: 10%;
+            }
+        }
+
+        /* 横屏模式优化 */
+        @media (max-width: 896px) and (orientation: landscape) {
+            .game-section {
+                margin-top: 50px;
+            }
+
+            .game-wrapper {
+                aspect-ratio: 16/9;  /* 横屏时保持16:9比例 */
+                max-height: 70vh;
+            }
+
+            .game-info-section {
+                max-height: 30vh;
+                overflow-y: auto;
+            }
+        }
+
+        /* 适配刘海屏 */
+        @supports (padding-top: env(safe-area-inset-top)) {
+            .header {
+                padding-top: env(safe-area-inset-top);
+            }
+
+            .game-section {
+                padding-left: env(safe-area-inset-left);
+                padding-right: env(safe-area-inset-right);
+            }
+
+            .footer {
+                padding-bottom: env(safe-area-inset-bottom);
+            }
+        }
+
+        .timed-overlay {
+            position: absolute;
+            top: -10%;
+            left: 0;
+            width: 100%;
+            height: 66.66%;
+            background: rgba(0, 0, 0, 0);
+            z-index: 1000;
+            transform: scale(1.143);
+            transform-origin: center center;
+            transition: opacity 0.5s ease;
+        }
+
+        .timed-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .right-overlay {
+            position: absolute;
+            top: 0;
+            right: -3%;
+            width: 20%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0);
+            z-index: 1000;
+            transform: scale(1.143);
+            transform-origin: right center;
+        }
+
+        .header-overlay {
+            position: absolute;
+            top: -3%;
+            left: 0;
+            width: 100%;
+            height: 25%;
+            background: rgba(0, 0, 0, 0);
+            z-index: 1000;
+            transform: scale(1.143);
+            transform-origin: top center;
+            transition: opacity 0.5s ease;
+        }
+
+        .header-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* 添加推荐游戏区域样式 */
+        .recommended-games {
+            margin-top: 40px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .recommended-games h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 24px;
+            text-align: center;
+        }
+
+        .recommended-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .recommended-game {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            transition: transform 0.3s;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .recommended-game:hover {
+            transform: translateY(-5px);
+        }
+
+        .recommended-game img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+        }
+
+        .recommended-game-info {
+            padding: 10px;
+        }
+
+        .recommended-game-title {
+            font-size: 16px;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .recommended-game-category {
+            font-size: 14px;
+            color: #666;
+        }
+
+        @media (max-width: 768px) {
+            .recommended-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <a href="index.html" class="home-button">Back to Home</a>
+            <h1>Curve Ball 3D Game</h1>
+        </div>
+    </header>
+
+    <main class="game-section">
+        <div class="game-container">
+            <div class="game-wrapper">
+                <iframe 
+                    class="game-frame"
+                    src="https://html5games.com/Game/Curve-Ball-3D/f3319962-5fb5-441f-811a-4baf8aeb58e7"
+                    frameborder="0"
+                    scrolling="no"
+                    allow="autoplay"
+                    allowfullscreen>
+                </iframe>
+                <div class="header-overlay"></div>
+                <div class="timed-overlay"></div>
+                <div class="right-overlay"></div>
+            </div>
+            <article class="game-info-section">
+                <h2>Game Instructions</h2>
+                <div class="info-block">
+                    <h3>Game Introduction</h3>
+                    <p>Open your eyes and get teleported back to the nostalgia of pong! You will curve the ball with your racket and with each level your opponent becomes quicker as well as the ball! Enjoy the marvelous visual effects and discover the world of addictive fun arcade! Use your skills and play your way through 'Curve Ball 3D'. Do you have what it takes to master this game?</p>
+                </div>
+                <div class="info-block">
+                    <h3>Game Rules</h3>
+                    <ul>
+                        <li>Use your racket to hit the ball</li>
+                        <li>Curve the ball to outmaneuver opponents</li>
+                        <li>Score points by passing the opponent</li>
+                        <li>Don't let the ball pass your racket</li>
+                        <li>Face increasingly faster opponents</li>
+                        <li>Master different ball curves</li>
+                        <li>Try to achieve high scores</li>
+                        <li>Challenge yourself to go further</li>
+                    </ul>
+                </div>
+                <div class="info-block">
+                    <h3>Controls</h3>
+                    <ul>
+                        <li>Use mouse to control racket</li>
+                        <li>Click to curve the ball</li>
+                        <li>Time your hits carefully</li>
+                        <li>Watch ball trajectory</li>
+                        <li>React quickly to fast balls</li>
+                        <li>Plan your curve shots</li>
+                    </ul>
+                </div>
+                <div class="info-block">
+                    <h3>Game Features</h3>
+                    <ul>
+                        <li>Stunning 3D graphics</li>
+                        <li>Ball curving mechanics</li>
+                        <li>Progressive difficulty</li>
+                        <li>Fast-paced gameplay</li>
+                        <li>Multiple curve types</li>
+                        <li>Score tracking system</li>
+                        <li>Engaging sound effects</li>
+                        <li>Classic Pong nostalgia</li>
+                    </ul>
+                </div>
+            </article>
+
+            <section class="recommended-games">
+                <h2>You May Also Like</h2>
+                <div class="recommended-grid">
+                    <a href="101.html" class="recommended-game">
+                        <img src="path_to_giant_rush_image" alt="Giant Rush">
+                        <div class="recommended-game-info">
+                            <h3 class="recommended-game-title">Giant Rush</h3>
+                            <p class="recommended-game-category">Arcade</p>
+                        </div>
+                    </a>
+                    <a href="102.html" class="recommended-game">
+                        <img src="path_to_pengu_slide_image" alt="Pengu Slide">
+                        <div class="recommended-game-info">
+                            <h3 class="recommended-game-title">Pengu Slide</h3>
+                            <p class="recommended-game-category">Arcade</p>
+                        </div>
+                    </a>
+                    <a href="103.html" class="recommended-game">
+                        <img src="path_to_peet_a_lock_image" alt="Peet a Lock">
+                        <div class="recommended-game-info">
+                            <h3 class="recommended-game-title">Peet a Lock</h3>
+                            <p class="recommended-game-category">Puzzle</p>
+                        </div>
+                    </a>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>© 2024 Game Center. For entertainment purposes only</p>
+        </div>
+    </footer>
+
+    <script>
+        // 获取iframe元素
+        const gameFrame = document.querySelector('.game-frame');
+        const timedOverlay = document.querySelector('.timed-overlay');
+        const headerOverlay = document.querySelector('.header-overlay');
+        const rightOverlay = document.querySelector('.right-overlay');
+        
+        // 5秒后隐藏第一个覆盖层
+        setTimeout(() => {
+            timedOverlay.classList.add('hidden');
+            setTimeout(() => {
+                timedOverlay.remove();
+            }, 500);
+        }, 5000);
+
+        // 15秒后隐藏头部覆盖层
+        setTimeout(() => {
+            headerOverlay.classList.add('hidden');
+            setTimeout(() => {
+                headerOverlay.remove();
+            }, 500);
+        }, 15000);
+
+        // 20秒后隐藏右侧覆盖层
+        setTimeout(() => {
+            rightOverlay.classList.add('hidden');
+            setTimeout(() => {
+                rightOverlay.remove();
+            }, 500);
+        }, 20000);
+
+        // 监听iframe加载完成事件
+        gameFrame.addEventListener('load', function() {
+            try {
+                // 尝试访问iframe内容
+                const iframeDocument = gameFrame.contentDocument || gameFrame.contentWindow.document;
+                
+                // 添加事件监听器来阻止点击事件
+                iframeDocument.addEventListener('click', function(e) {
+                    if (e.target.tagName === 'A' || e.target.closest('a')) {
+                        e.preventDefault();
+                        return false;
+                    }
+                }, true);
+
+                // 禁用所有链接
+                const style = document.createElement('style');
+                style.textContent = `
+                    a { pointer-events: none !important; }
+                    [onclick] { pointer-events: none !important; }
+                `;
+                iframeDocument.head.appendChild(style);
+            } catch (e) {
+                console.log('Cannot access iframe content due to same-origin policy');
+            }
+        });
+
+        // 防止页面跳转
+        window.onbeforeunload = function(e) {
+            e.preventDefault();
+            return false;
+        };
+    </script>
+</body>
+</html> 
