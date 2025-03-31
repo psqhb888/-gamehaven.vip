@@ -1,0 +1,64 @@
+Game Names and Types:
+
+1. Train Miner - Adventure
+2. Rise Up - Casual
+3. Giant Rush - Action
+4. Western Sniper - Shooting
+5. Go Escape - Puzzle
+6. Color Fill 3D - Puzzle
+7. Spot the Cat - Observation
+8. Color Roll 3D - Puzzle
+9. Color Water Sort 3D - Puzzle
+10. Braindom - Puzzle
+11. Sort It - Puzzle
+12. Cube Match - Puzzle
+13. Parking Jam - Casual
+14. Fashion Battle - Casual
+15. Fruit Party - Casual
+16. Guess Their Answer - Puzzle
+17. Thief Puzzle - Puzzle
+18. Neon Rider - Action
+19. Speed Master - Racing
+20. Alien Attack - Shooting
+21. Peet Sneak - Adventure
+22. Cut The Rope - Puzzle
+23. Toilet Run - Action
+24. Block Painter - Puzzle
+25. Cowboy Swing - Action
+26. Pair Up 3D - Puzzle
+27. Go Around - Casual
+28. Green Ball - Action
+29. Twisty Lines - Puzzle
+30. Lawn Mower - Casual
+31. Rising Squares - Puzzle
+32. Tower Fall - Action
+33. Emoji Fun - Casual
+34. Bottle Flip - Casual
+35. Slime Road - Action
+36. Pipe Puzzle - Puzzle
+37. Funny Fred - Casual
+38. Barbara Kent - Adventure
+39. Parking Panic - Casual
+40. Super Thrower - Action
+41. Food Rush - Casual
+42. Parking Rush - Casual
+43. Giant Attack - Action
+44. Gun Spin - Shooting
+45. Good Shelves - Puzzle
+46. Crazy Hen Level - Action
+47. Dance Battle - Casual
+48. Tile Journey - Puzzle
+49. Love Tester - Casual
+50. Emoji Match - Puzzle
+51. Tower Smash Level - Action
+52. Tower Smash - Action
+53. Save the Princess - Adventure
+54. Peet a Lock - Puzzle
+55. Pengu Slide - Casual
+56. Peet Around - Action
+57. Words of Wonders - Puzzle
+58. Emoji Flow - Puzzle
+59. Neon Swing - Action
+60. Neon Tower - Action
+
+注意：请提供游戏iframe地址，我会帮您提取游戏名称并更新此文件。 
